@@ -1,0 +1,9 @@
+name: Laravel 12 Lightweight
+description: A lightweight development environment for Laravel 12 with PHP 8.2, Node.js 20, and VS Code
+icon: https://laravel.com/img/logomark.min.svg
+tags:
+  - php
+  - laravel
+  - web
+  - development
+  - lightweight

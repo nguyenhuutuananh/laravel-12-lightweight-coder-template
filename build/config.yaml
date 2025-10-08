@@ -1,0 +1,6 @@
+bind-addr: 0.0.0.0:13337
+auth: none
+password: ""
+cert: false
+disable-telemetry: true
+disable-update-check: true
