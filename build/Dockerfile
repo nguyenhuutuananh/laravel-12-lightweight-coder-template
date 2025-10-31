@@ -1,23 +1,26 @@
 # Use Ubuntu with PHP pre-installed (more reliable)
 FROM ubuntu:22.04
 
+# Accept PHP version as build argument
+ARG PHP_VERSION=8.2
+
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Ho_Chi_Minh
 
-# Install PHP 8.2 and essential packages
+# Install PHP and essential packages
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
     add-apt-repository ppa:ondrej/php -y && \
     apt-get update && \
     apt-get install -y \
-        php8.2-cli \
-        php8.2-zip \
-        php8.2-sqlite3 \
-        php8.2-curl \
-        php8.2-mbstring \
-        php8.2-xml \
-        php8.2-dom \
+        php${PHP_VERSION}-cli \
+        php${PHP_VERSION}-zip \
+        php${PHP_VERSION}-sqlite3 \
+        php${PHP_VERSION}-curl \
+        php${PHP_VERSION}-mbstring \
+        php${PHP_VERSION}-xml \
+        php${PHP_VERSION}-dom \
         curl \
         git \
         unzip \

@@ -18,6 +18,32 @@ provider "coder" {
 data "coder_workspace" "me" {
 }
 
+data "coder_parameter" "php_version" {
+  name         = "PHP Version"
+  description  = "Select the PHP version to use"
+  type         = "string"
+  default      = "8.2"
+  mutable      = false
+  icon         = "https://www.php.net/images/logos/new-php-logo.svg"
+
+  option {
+    name  = "PHP 8.1"
+    value = "8.1"
+  }
+  option {
+    name  = "PHP 8.2"
+    value = "8.2"
+  }
+  option {
+    name  = "PHP 8.3"
+    value = "8.3"
+  }
+  option {
+    name  = "PHP 8.4"
+    value = "8.4"
+  }
+}
+
 data "coder_parameter" "dotfiles_url" {
   name         = "Dotfiles URL"
   description  = "Personalize your workspace"
@@ -31,7 +57,7 @@ data "coder_parameter" "init_laravel_project" {
   name         = "Initialize Laravel Project"
   description  = "Automatically create a new Laravel 12 project in the workspace if none exists"
   type         = "bool"
-  default      = true
+  default      = false
   mutable      = false
   icon         = "https://laravel.com/img/logomark.min.svg"
 }
@@ -137,7 +163,8 @@ resource "docker_image" "main" {
     context = "./build"
     dockerfile = "Dockerfile"
     build_args = {
-      USER = "coder"
+      USER        = "coder"
+      PHP_VERSION = data.coder_parameter.php_version.value
     }
   }
   triggers = {
@@ -174,5 +201,9 @@ resource "coder_metadata" "container_info" {
   item {
     key   = "container"
     value = docker_container.workspace[0].name
+  }
+  item {
+    key   = "PHP Version"
+    value = data.coder_parameter.php_version.value
   }
 }
