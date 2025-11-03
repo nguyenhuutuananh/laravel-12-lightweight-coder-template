@@ -13,18 +13,14 @@ echo "Creating workspace directory: $USER_HOME/$WORKSPACE_DIR"
 mkdir -p $USER_HOME/$WORKSPACE_DIR
 cd $USER_HOME/$WORKSPACE_DIR
 
-# Configure code-server
-echo "Configuring code-server..."
-cat > ~/.config/code-server/config.yaml <<-EOF
-bind-addr: 0.0.0.0:13337
-auth: password
-password: $CODE_SERVER_PASSWORD
-cert: false
-disable-telemetry: true
-disable-update-check: true
-EOF
-
-echo "Code-server password has been set"
+# Configure code-server password
+echo "Configuring code-server password..."
+if [ -n "$CODE_SERVER_PASSWORD" ]; then
+  sed -i "s/password: \"\"/password: \"$CODE_SERVER_PASSWORD\"/" ~/.config/code-server/config.yaml
+  echo "✅ Code-server password has been set"
+else
+  echo "⚠️  No password provided. Using default from config.yaml"
+fi
 
 # Start code-server in the background
 echo "Starting code-server..."
