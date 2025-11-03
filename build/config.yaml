@@ -1,5 +1,5 @@
 bind-addr: 0.0.0.0:13337
-auth: none
+auth: password
 password: ""
 cert: false
 disable-telemetry: true

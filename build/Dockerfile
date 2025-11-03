@@ -51,6 +51,9 @@ RUN useradd --create-home --shell /bin/bash ${USER} && \
 USER ${USER}
 WORKDIR /home/${USER}
 
+# Set environment variable for entrypoint path
+ENV USER_HOME=/home/${USER}
+
 # Install Laravel installer
 RUN composer global require laravel/installer
 
@@ -61,11 +64,17 @@ ENV PATH="/home/${USER}/.composer/vendor/bin:${PATH}"
 RUN mkdir -p /home/${USER}/.config/code-server
 COPY --chown=${USER}:${USER} config.yaml /home/${USER}/.config/code-server/
 
+# Copy startup script that handles optional password configuration
+COPY --chown=${USER}:${USER} entrypoint.sh /home/${USER}/
+RUN chmod +x /home/${USER}/entrypoint.sh
+
 # Workspace directory will be created dynamically by the startup script
 # based on the workspace_directory parameter
 
 # Expose ports
 EXPOSE 8000 13337
 
-# Start code-server (path will be overridden by Coder agent)
-CMD ["sh", "-c", "code-server --bind-addr 0.0.0.0:13337 /home/${USER}"]
+# Start code-server via entrypoint script
+# Set CODE_SERVER_PASSWORD environment variable to use a custom password
+# If not set, code-server will generate a random password
+CMD ["sh", "-c", "${USER_HOME}/entrypoint.sh"]

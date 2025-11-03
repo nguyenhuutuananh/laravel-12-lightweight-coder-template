@@ -98,6 +98,15 @@ data "coder_parameter" "username" {
   icon         = "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
 }
 
+data "coder_parameter" "code_server_password" {
+  name         = "Code-Server Password"
+  description  = "Password for accessing VS Code (code-server). Leave blank to auto-generate a random password."
+  type         = "string"
+  default      = ""
+  mutable      = true
+  icon         = "https://cdn-icons-png.flaticon.com/512/2889/2889676.png"
+}
+
 resource "coder_agent" "main" {
   os   = "linux"
   arch = "arm64"  # Changed from "amd64"
@@ -216,7 +225,10 @@ resource "docker_container" "workspace" {
   name = "coder-${data.coder_workspace.me.id}-${lower(data.coder_workspace.me.name)}"
   hostname = data.coder_workspace.me.name
   entrypoint = ["sh", "-c", replace(coder_agent.main.init_script, "/localhost|127\\.0\\.0\\.1/", "host.docker.internal")]
-  env        = ["CODER_AGENT_TOKEN=${coder_agent.main.token}"]
+  env        = [
+    "CODER_AGENT_TOKEN=${coder_agent.main.token}",
+    "CODE_SERVER_PASSWORD=${data.coder_parameter.code_server_password.value}"
+  ]
   host {
     host = "host.docker.internal"
     ip   = "host-gateway"
