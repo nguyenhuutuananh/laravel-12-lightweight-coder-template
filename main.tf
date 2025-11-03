@@ -6,6 +6,10 @@ terraform {
     docker = {
       source = "kreuzwerker/docker"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
 }
 
@@ -13,6 +17,9 @@ provider "docker" {
 }
 
 provider "coder" {
+}
+
+provider "random" {
 }
 
 data "coder_workspace" "me" {
@@ -107,54 +114,43 @@ data "coder_parameter" "code_server_password" {
   icon         = "https://cdn-icons-png.flaticon.com/512/2889/2889676.png"
 }
 
+# Generate random password for code-server if not provided by user
+resource "random_password" "code_server_password" {
+  length  = 20
+  special = false  # Avoid special characters that might cause issues
+  upper   = true
+  lower   = true
+  numeric = true
+  
+  # Only generate if user didn't provide a custom password
+  keepers = {
+    # This will regenerate the password if the parameter changes
+    custom_password = data.coder_parameter.code_server_password.value
+  }
+}
+
+# Use custom password if provided, otherwise use generated one
+locals {
+  final_code_server_password = data.coder_parameter.code_server_password.value != "" ? data.coder_parameter.code_server_password.value : random_password.code_server_password.result
+}
+
+output "debug_password" {
+  value     = local.final_code_server_password
+  sensitive = true
+}
+
 resource "coder_agent" "main" {
   os   = "linux"
-  arch = "arm64"  # Changed from "amd64"
-  startup_script = <<-EOT
-    set -e
-
-    # Create workspace directory
-    WORKSPACE_DIR="${data.coder_parameter.workspace_directory.value}"
-    USER_HOME="/home/${data.coder_parameter.username.value}"
-    mkdir -p $USER_HOME/$WORKSPACE_DIR
-    cd $USER_HOME/$WORKSPACE_DIR
-
-    # Install dotfiles if provided
-    if [ -n "${data.coder_parameter.dotfiles_url.value}" ]; then
-      echo "Installing dotfiles from ${data.coder_parameter.dotfiles_url.value}"
-      coder dotfiles -y ${data.coder_parameter.dotfiles_url.value}
-    fi
-
-    # Create a sample Laravel project if parameter is enabled and workspace is empty
-    if [ "${data.coder_parameter.init_laravel_project.value}" = "true" ]; then
-      if [ ! -f "composer.json" ] && [ ! -d "laravel-app" ]; then
-        echo "Creating new Laravel 12 project..."
-        composer create-project laravel/laravel laravel-app --prefer-dist
-        cd laravel-app
-
-        # Set proper permissions
-        chmod -R 775 storage bootstrap/cache
-
-        # Install frontend dependencies
-        npm install
-
-        # Generate application key
-        php artisan key:generate
-
-        # Run initial migration (SQLite by default)
-        php artisan migrate --force
-
-        echo "Laravel project created successfully!"
-        echo "Navigate to $USER_HOME/$WORKSPACE_DIR/laravel-app to start developing"
-        echo "Run 'php artisan serve --host=0.0.0.0 --port=8000' to start the development server"
-      else
-        echo "Laravel project already exists or init_laravel_project is disabled"
-      fi
-    else
-      echo "Laravel project initialization is disabled. Set 'Initialize Laravel Project' to true to auto-create a project."
-    fi
-  EOT
-
+  arch = "arm64"
+  
+  startup_script = templatefile("${path.module}/startup.sh.tpl", {
+    workspace_dir        = data.coder_parameter.workspace_directory.value
+    username             = data.coder_parameter.username.value
+    code_server_password = local.final_code_server_password
+    dotfiles_url         = data.coder_parameter.dotfiles_url.value
+    init_laravel         = data.coder_parameter.init_laravel_project.value
+  })
+  
   env = {
     GIT_AUTHOR_NAME     = data.coder_parameter.git_author_name.value != "" ? data.coder_parameter.git_author_name.value : "coder"
     GIT_COMMITTER_NAME  = data.coder_parameter.git_author_name.value != "" ? data.coder_parameter.git_author_name.value : "coder"
