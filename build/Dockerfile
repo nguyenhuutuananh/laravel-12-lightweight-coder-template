@@ -61,11 +61,11 @@ ENV PATH="/home/${USER}/.composer/vendor/bin:${PATH}"
 RUN mkdir -p /home/${USER}/.config/code-server
 COPY --chown=${USER}:${USER} config.yaml /home/${USER}/.config/code-server/
 
-# Create workspace directory
-RUN mkdir -p /home/${USER}/workspace
+# Workspace directory will be created dynamically by the startup script
+# based on the workspace_directory parameter
 
 # Expose ports
 EXPOSE 8000 13337
 
-# Start code-server
-CMD ["code-server", "--bind-addr", "0.0.0.0:13337", "/home/coder/workspace"]
+# Start code-server (path will be overridden by Coder agent)
+CMD ["sh", "-c", "code-server --bind-addr 0.0.0.0:13337 /home/${USER}"]
