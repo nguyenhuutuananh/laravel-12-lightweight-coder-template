@@ -25,13 +25,19 @@ provider "random" {
 data "coder_workspace" "me" {
 }
 
+# ============================================================================
+# ENVIRONMENT CONFIGURATION (Order: 100-199)
+# ============================================================================
+
 data "coder_parameter" "php_version" {
   name         = "PHP Version"
+  display_name = "Environment: PHP Version"
   description  = "Select the PHP version to use"
   type         = "string"
   default      = "8.2"
   mutable      = false
   icon         = "https://www.php.net/images/logos/new-php-logo.svg"
+  order        = 100
 
   option {
     name  = "PHP 8.1"
@@ -51,67 +57,97 @@ data "coder_parameter" "php_version" {
   }
 }
 
-data "coder_parameter" "dotfiles_url" {
-  name         = "Dotfiles URL"
-  description  = "Personalize your workspace"
-  type         = "string"
-  default      = ""
-  mutable      = true
-  icon         = "https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png"
-}
-
-data "coder_parameter" "init_laravel_project" {
-  name         = "Initialize Laravel Project"
-  description  = "Automatically create a new Laravel 12 project in the workspace if none exists"
-  type         = "bool"
-  default      = false
-  mutable      = false
-  icon         = "https://laravel.com/img/logomark.min.svg"
-}
-
-data "coder_parameter" "workspace_directory" {
-  name         = "Workspace Directory"
-  description  = "Default workspace directory path (relative to home directory)"
-  type         = "string"
-  default      = "workspace"
-  mutable      = false
-  icon         = "https://cdn-icons-png.flaticon.com/512/716/716784.png"
-}
-
-data "coder_parameter" "git_author_name" {
-  name         = "Git Author Name"
-  description  = "Your name for git commits"
-  type         = "string"
-  default      = ""
-  mutable      = true
-  icon         = "https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png"
-}
-
-data "coder_parameter" "git_author_email" {
-  name         = "Git Author Email"
-  description  = "Your email for git commits"
-  type         = "string"
-  default      = ""
-  mutable      = true
-  icon         = "https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png"
-}
-
 data "coder_parameter" "username" {
   name         = "Username"
+  display_name = "Environment: System Username"
   description  = "System username for the workspace"
   type         = "string"
   default      = "coder"
   mutable      = false
   icon         = "https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+  order        = 110
 }
+
+data "coder_parameter" "workspace_directory" {
+  name         = "Workspace Directory"
+  display_name = "Environment: Workspace Directory"
+  description  = "Default workspace directory path (relative to home directory)"
+  type         = "string"
+  default      = "workspace"
+  mutable      = false
+  icon         = "https://cdn-icons-png.flaticon.com/512/716/716784.png"
+  order        = 120
+}
+
+# ============================================================================
+# PROJECT CONFIGURATION (Order: 200-299)
+# ============================================================================
+
+data "coder_parameter" "init_laravel_project" {
+  name         = "Initialize Laravel Project"
+  display_name = "Project: Initialize Laravel Project"
+  description  = "Automatically create a new Laravel 12 project in the workspace if none exists"
+  type         = "bool"
+  default      = false
+  mutable      = false
+  icon         = "https://laravel.com/img/logomark.min.svg"
+  order        = 200
+}
+
+# ============================================================================
+# GIT CONFIGURATION (Order: 300-399)
+# ============================================================================
+
+data "coder_parameter" "git_author_name" {
+  name         = "Git Author Name"
+  display_name = "Git: Author Name"
+  description  = "Your name for git commits"
+  type         = "string"
+  default      = ""
+  mutable      = true
+  icon         = "https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png"
+  order        = 300
+}
+
+data "coder_parameter" "git_author_email" {
+  name         = "Git Author Email"
+  display_name = "Git: Author Email"
+  description  = "Your email for git commits"
+  type         = "string"
+  default      = ""
+  mutable      = true
+  icon         = "https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png"
+  order        = 310
+}
+
+# ============================================================================
+# PERSONALIZATION (Order: 400-499)
+# ============================================================================
+
+data "coder_parameter" "dotfiles_url" {
+  name         = "Dotfiles URL"
+  display_name = "Personalization: Dotfiles URL"
+  description  = "Personalize your workspace with dotfiles"
+  type         = "string"
+  default      = ""
+  mutable      = true
+  icon         = "https://git-scm.com/images/logos/downloads/Git-Icon-1788C.png"
+  order        = 400
+}
+
+# ============================================================================
+# SECURITY (Order: 500-599)
+# ============================================================================
 
 data "coder_parameter" "code_server_password" {
   name         = "Code-Server Password"
+  display_name = "Security: Code-Server Password"
   description  = "Password for accessing VS Code (code-server). Leave blank to auto-generate a random password."
   type         = "string"
   default      = ""
   mutable      = true
   icon         = "https://cdn-icons-png.flaticon.com/512/2889/2889676.png"
+  order        = 500
 }
 
 # Generate random password for code-server if not provided by user
