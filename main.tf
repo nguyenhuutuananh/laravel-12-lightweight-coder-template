@@ -57,6 +57,30 @@ data "coder_parameter" "php_version" {
   }
 }
 
+data "coder_parameter" "nodejs_version" {
+  name         = "Node.js Version"
+  display_name = "Environment: Node.js Version"
+  description  = "Select the Node.js version to use"
+  type         = "string"
+  default      = "20"
+  mutable      = false
+  icon         = "https://nodejs.org/static/images/logo.svg"
+  order        = 101
+
+  option {
+    name  = "Node.js 18 LTS"
+    value = "18"
+  }
+  option {
+    name  = "Node.js 20 LTS"
+    value = "20"
+  }
+  option {
+    name  = "Node.js 22"
+    value = "22"
+  }
+}
+
 data "coder_parameter" "username" {
   name         = "Username"
   display_name = "Environment: System Username"
@@ -92,6 +116,17 @@ data "coder_parameter" "init_laravel_project" {
   mutable      = false
   icon         = "https://laravel.com/img/logomark.min.svg"
   order        = 200
+}
+
+data "coder_parameter" "laravel_project_name" {
+  name         = "Laravel Project Name"
+  display_name = "Project: Laravel Project Directory Name"
+  description  = "Directory name for the new Laravel project (only used when Initialize Laravel Project is enabled)"
+  type         = "string"
+  default      = "laravel-app"
+  mutable      = false
+  icon         = "https://laravel.com/img/logomark.min.svg"
+  order        = 201
 }
 
 # ============================================================================
@@ -185,6 +220,7 @@ resource "coder_agent" "main" {
     code_server_password = local.final_code_server_password
     dotfiles_url         = data.coder_parameter.dotfiles_url.value
     init_laravel         = data.coder_parameter.init_laravel_project.value
+    laravel_project_name = data.coder_parameter.laravel_project_name.value
   })
   
   env = {
@@ -242,8 +278,9 @@ resource "docker_image" "main" {
     context = "./build"
     dockerfile = "Dockerfile"
     build_args = {
-      USER        = data.coder_parameter.username.value
-      PHP_VERSION = data.coder_parameter.php_version.value
+      USER           = data.coder_parameter.username.value
+      PHP_VERSION    = data.coder_parameter.php_version.value
+      NODEJS_VERSION = data.coder_parameter.nodejs_version.value
     }
   }
   triggers = {
@@ -287,5 +324,9 @@ resource "coder_metadata" "container_info" {
   item {
     key   = "PHP Version"
     value = data.coder_parameter.php_version.value
+  }
+  item {
+    key   = "Node.js Version"
+    value = data.coder_parameter.nodejs_version.value
   }
 }

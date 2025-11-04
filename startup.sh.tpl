@@ -7,6 +7,7 @@ USER_HOME="/home/${username}"
 CODE_SERVER_PASSWORD="${code_server_password}"
 DOTFILES_URL="${dotfiles_url}"
 INIT_LARAVEL="${init_laravel}"
+LARAVEL_PROJECT_NAME="${laravel_project_name}"
 
 # Create workspace directory
 echo "Creating workspace directory: $USER_HOME/$WORKSPACE_DIR"
@@ -47,11 +48,11 @@ fi
 
 # Create Laravel project if enabled
 if [ "$INIT_LARAVEL" = "true" ]; then
-  if [ ! -f "composer.json" ] && [ ! -d "laravel-app" ]; then
-    echo "Creating new Laravel project..."
-    composer create-project laravel/laravel laravel-app
-    cd laravel-app
-    echo "✅ Laravel project created successfully"
+  if [ ! -f "composer.json" ] && [ ! -d "$LARAVEL_PROJECT_NAME" ]; then
+    echo "Creating new Laravel project in directory: $LARAVEL_PROJECT_NAME"
+    composer create-project laravel/laravel "$LARAVEL_PROJECT_NAME"
+    cd "$LARAVEL_PROJECT_NAME"
+    echo "✅ Laravel project created successfully at $LARAVEL_PROJECT_NAME"
   else
     echo "Laravel project already exists, skipping creation"
   fi

@@ -1,8 +1,9 @@
 # Use Ubuntu with PHP pre-installed (more reliable)
 FROM ubuntu:22.04
 
-# Accept PHP version as build argument
+# Accept PHP and Node.js versions as build arguments
 ARG PHP_VERSION=8.2
+ARG NODEJS_VERSION=20
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
@@ -30,8 +31,8 @@ RUN apt-get update && \
         ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js 20.x
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+# Install Node.js (version specified by build arg)
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODEJS_VERSION}.x | bash - && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
